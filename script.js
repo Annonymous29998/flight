@@ -4,8 +4,8 @@
 
 // Flight Database with sample flights
 const flightDatabase = {
-    'AA5079': {
-        flightNumber: 'AA 5079',
+    'AA2156': {
+        flightNumber: 'AA 2156',
         passenger: {
             name: 'Donna Carver',
             avatar: '👤'
