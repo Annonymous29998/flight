@@ -15,7 +15,7 @@ const flightDatabase = {
             city: 'Boston, MA, USA',
             fullName: 'Boston',
             date: 'Apr 3, 2026',
-            time: '10:00 AM',
+            time: '1:18 PM',
             gate: 'A15'
         },
         arrival: {
@@ -23,7 +23,7 @@ const flightDatabase = {
             city: 'Charleston, SC, USA',
             fullName: 'Charleston',
             date: 'Apr 3, 2026',
-            time: '12:18 PM'
+            time: '3:30 PM'
         },
         connections: [],
         connectionDetails: {},
