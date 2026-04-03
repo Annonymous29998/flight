@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="American Airlines Flight Tracker - Find and track your flight details">
+    <meta name="theme-color" content="#003366">
+    <title>American Airlines Flight Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="app-container" role="main">
+        <!-- Top Airplane Hero Section -->
+        <div class="hero-airplane" aria-hidden="true">
+            <svg class="airplane-hero-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+            </svg>
+            <div class="hero-glow"></div>
+        </div>
+
+        <!-- Background Globe Overlay -->
+        <div class="globe-overlay" aria-hidden="true"></div>
+        
+        <!-- Lookup State: Landing Page -->
+        <section id="lookupState" class="lookup-state" aria-label="Flight Search">
+            <article class="lookup-card">
+                <header class="lookup-header">
+                    <!-- AA Logo in Lookup Card -->
+                    <div class="lookup-logo" aria-hidden="true">
+                        <img src="image.png" alt="American Airlines Logo" class="aa-logo-img-small">
+                    </div>
+                    <h1 class="lookup-title">Find Your Flight</h1>
+                </header>
+                <div class="lookup-form">
+                    <label for="flightInput" class="input-label">Flight Number</label>
+                    <input 
+                        type="text" 
+                        id="flightInput" 
+                        class="flight-input" 
+                        placeholder="e.g., AA 5079"
+                        autocomplete="off"
+                        maxlength="10"
+                        aria-describedby="inputHint"
+                        spellcheck="false"
+                        inputmode="text"
+                    >
+                    <span id="inputHint" class="visually-hidden">Enter your American Airlines flight number</span>
+                    <button id="searchBtn" class="search-btn" type="button" aria-label="Search for flight">
+                        Search
+                    </button>
+                </div>
+                <div id="errorMessage" class="error-message" role="alert" hidden>
+                    Flight not found. Please check your flight number.
+                </div>
+            </article>
+        </section>
+
+        <!-- Flight Details State: Results Page -->
+        <section id="detailsState" class="details-state" aria-label="Flight Details" hidden>
+            <article class="flight-card">
+                <!-- Header Section with Airports -->
+                <header class="flight-header" role="banner">
+                    <div class="airport-container">
+                        <div class="airport airport-departure">
+                            <div class="airport-code" id="departureAirportCode">ATL</div>
+                            <div class="airport-name" id="departureAirportCity">Georgia, USA</div>
+                        </div>
+                        <div class="flight-path-header">
+                            <!-- Curved dotted line with SVG -->
+                            <div class="flight-route-curved">
+                                <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+                                    <path d="M 0 35 Q 100 0 200 35" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="5,5"/>
+                                </svg>
+                            </div>
+                            <div class="plane-icon-wrapper">
+                                <div class="plane-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="globe-graphic" aria-hidden="true"></div>
+                        </div>
+                        <div class="airport airport-arrival">
+                            <div class="airport-code" id="arrivalAirportCode">YYZ</div>
+                            <div class="airport-name" id="arrivalAirportCity">Ontario, CA</div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Passenger Card -->
+                <div class="passenger-card" role="region" aria-label="Passenger Information">
+                    <div class="passenger-info">
+                        <div class="passenger-avatar" aria-hidden="true">👤</div>
+                        <div class="passenger-name" id="passengerName">Donna Carver</div>
+                    </div>
+                    <div class="airlines-logo" aria-label="American Airlines">
+                        <img src="image.png" alt="American Airlines Logo" class="aa-logo-img">
+                    </div>
+                </div>
+
+                <!-- The Flight Path: Three-point connection -->
+                <div class="flight-journey" role="region" aria-label="Flight Route">
+                    <div class="journey-route" id="journeyRoute">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Time Grid: Departure and Arrival -->
+                <div class="time-grid" role="region" aria-label="Flight Times">
+                    <div class="time-box departure">
+                        <div class="time-label">Departure</div>
+                        <div class="time-date" id="departureDate">Jan 15, 2025</div>
+                        <div class="time-time" id="departureTime">6:12 PM</div>
+                    </div>
+                    <div class="time-box arrival">
+                        <div class="time-label">Arrival</div>
+                        <div class="time-date" id="arrivalDate">Jan 15, 2025</div>
+                        <div class="time-time" id="arrivalTime">10:34 PM</div>
+                    </div>
+                </div>
+
+                <!-- Footer Data Row: Four-column layout -->
+                <footer class="flight-footer" role="contentinfo">
+                    <div class="footer-grid">
+                        <div class="footer-item">
+                            <div class="footer-label">Gate</div>
+                            <div class="footer-value" id="gateInfo">B2</div>
+                        </div>
+                        <div class="footer-item">
+                            <div class="footer-label">Seat</div>
+                            <div class="footer-value" id="seatInfo">23A</div>
+                        </div>
+                        <div class="footer-item">
+                            <div class="footer-label">Flight no.</div>
+                            <div class="footer-value" id="flightNumber">AA 5079</div>
+                        </div>
+                        <div class="footer-item">
+                            <div class="footer-label">Class</div>
+                            <div class="footer-value" id="classInfo">Economy</div>
+                        </div>
+                    </div>
+                </footer>
+
+                <!-- Back Button -->
+                <div class="back-container">
+                    <button id="backBtn" class="back-btn" type="button" aria-label="Go back to search">
+                        ← Back to Search
+                    </button>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
