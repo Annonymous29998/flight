@@ -3,157 +3,398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="American Airlines Flight Tracker - Find and track your flight details">
-    <meta name="theme-color" content="#003366">
-    <title>American Airlines Flight Tracker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="Flight status by city, cities, or flight number - American Airlines">
+    <meta name="theme-color" content="#0078d2">
+    <title>Flight status - Flight status by city, cities, or flight number - American Airlines</title>
+    <link rel="icon" href="image2.png" type="image/png">
+    <link rel="apple-touch-icon" href="image2.png">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <main class="app-container" role="main">
-        <!-- Top Airplane Hero Section -->
-        <div class="hero-airplane" aria-hidden="true">
-            <svg class="airplane-hero-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-            </svg>
-            <div class="hero-glow"></div>
-        </div>
+<body class="aa-status-page">
+    <!--
+      Green route row: Material Icons "flight" (#bp-icon-plane-flight) — fonts.google.com/icons?icon.query=flight
+      Header arc: custom side-view jet in bp-hero-arc.svg (matches typical boarding-pass white plane on dotted arc).
+    -->
+    <svg class="bp-icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="bp-icon-plane-flight" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+            </symbol>
+        </defs>
+    </svg>
 
-        <!-- Background Globe Overlay -->
-        <div class="globe-overlay" aria-hidden="true"></div>
-        
-        <!-- Lookup State: Landing Page -->
-        <section id="lookupState" class="lookup-state" aria-label="Flight Search">
-            <article class="lookup-card">
-                <header class="lookup-header">
-                    <!-- AA Logo in Lookup Card -->
-                    <div class="lookup-logo" aria-hidden="true">
-                        <img src="image.png" alt="American Airlines Logo" class="aa-logo-img-small">
+    <a class="aa-skip-link" href="#aa-content-frame">Skip to content</a>
+    <button type="button" class="aa-feedback-tab aa-chrome-dummy" tabindex="-1" aria-hidden="true">Feedback</button>
+
+    <header class="aa-site-header" role="banner">
+        <!-- Mobile / narrow: compact header -->
+        <div class="aa-header-mobile">
+            <div class="aa-header-bar aa-inner">
+                <button type="button" class="aa-header-logo-link aa-chrome-dummy" aria-label="American Airlines (decorative)">
+                    <img src="image.png" alt="" class="aa-header-logo" decoding="async">
+                </button>
+                <div class="aa-header-right">
+                    <div class="aa-header-actions">
+                        <button type="button" class="aa-btn-login aa-chrome-dummy" tabindex="-1" aria-hidden="true">Log in</button>
+                        <button type="button" class="aa-btn-menu aa-chrome-dummy" tabindex="-1" aria-hidden="true" aria-label="Menu (inactive)">
+                            <span class="aa-btn-menu-bars" aria-hidden="true"></span>
+                        </button>
                     </div>
-                    <h1 class="lookup-title">Find Your Flight</h1>
-                </header>
-                <div class="lookup-form">
-                    <label for="flightInput" class="input-label">Flight Number</label>
-                    <input 
-                        type="text" 
-                        id="flightInput" 
-                        class="flight-input" 
-                        placeholder="e.g., AA 5079"
-                        autocomplete="off"
-                        maxlength="10"
-                        aria-describedby="inputHint"
-                        spellcheck="false"
-                        inputmode="text"
-                    >
-                    <span id="inputHint" class="visually-hidden">Enter your American Airlines flight number</span>
-                    <button id="searchBtn" class="search-btn" type="button" aria-label="Search for flight">
-                        Search
+                    <button type="button" class="aa-lang-select aa-chrome-dummy" tabindex="-1" aria-hidden="true">
+                        <span class="aa-lang-flag" aria-hidden="true">🇺🇸</span>
+                        English
+                        <svg class="aa-chevron-down" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
                     </button>
                 </div>
+            </div>
+        </div>
+        <!-- Desktop: full chrome (matches aa.com flight status) -->
+        <div class="aa-header-desktop">
+            <div class="aa-inner aa-header-desktop-inner">
+                <div class="aa-header-desktop-left">
+                    <button type="button" class="aa-header-logo-link aa-chrome-dummy" aria-label="American Airlines (decorative)">
+                        <img src="image.png" alt="" class="aa-header-logo aa-header-logo--desktop" decoding="async">
+                    </button>
+                    <span class="aa-oneworld-link" aria-hidden="true">
+                        <span class="aa-oneworld-wordmark">oneworld</span>
+                    </span>
+                </div>
+                <nav class="aa-header-desktop-nav" aria-label="Primary navigation (inactive)">
+                    <button type="button" class="aa-nav-pill aa-chrome-dummy" tabindex="-1">Plan travel</button>
+                    <button type="button" class="aa-nav-pill aa-chrome-dummy" tabindex="-1">Travel information</button>
+                    <button type="button" class="aa-nav-pill aa-chrome-dummy" tabindex="-1">AAdvantage®</button>
+                </nav>
+                <div class="aa-header-desktop-tools">
+                    <button type="button" class="aa-lang-select aa-lang-select--desktop aa-chrome-dummy" tabindex="-1" aria-hidden="true">
+                        <span class="aa-lang-flag" aria-hidden="true">🇺🇸</span>
+                        English
+                        <svg class="aa-chevron-down" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+                    </button>
+                    <div class="aa-header-search aa-chrome-dummy" role="search" aria-hidden="true">
+                        <label class="visually-hidden" for="aaHeaderSearchInput">Search (inactive)</label>
+                        <input type="search" id="aaHeaderSearchInput" class="aa-header-search-input" placeholder="Search AA.com®" autocomplete="off" readonly tabindex="-1">
+                        <button type="button" class="aa-header-search-submit" aria-label="Search (inactive)" tabindex="-1">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button type="button" class="aa-btn-login aa-chrome-dummy" tabindex="-1" aria-hidden="true">Log in</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main" class="aa-main" role="main">
+        <div id="aa-content-frame" class="aa-inner aa-content" tabindex="-1">
+            <section id="lookupState" class="lookup-state" aria-label="Flight status search">
+                <h1 class="aa-page-title">Flight status</h1>
+
+                <div class="aa-flight-widget">
+                    <div class="search-type-toggle" role="tablist" aria-label="Search by">
+                        <button type="button" role="tab" id="tabFlightNumber" class="search-type-tab is-active" aria-selected="true" aria-controls="panelFlightNumber" data-mode="flight-number">
+                            <span class="tab-check" aria-hidden="true">✓</span>
+                            Flight number
+                        </button>
+                        <button type="button" role="tab" id="tabCities" class="search-type-tab" aria-selected="false" aria-controls="panelCities" data-mode="cities">
+                            Cities
+                        </button>
+                    </div>
+
+                    <div id="lookupForm" class="lookup-form is-flight-mode">
+                        <div id="panelFlightNumber" role="tabpanel" aria-labelledby="tabFlightNumber" class="search-panel">
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="flightInput" class="input-label">Flight number</label>
+                                    <input
+                                        type="text"
+                                        id="flightInput"
+                                        class="flight-input flight-input-plain"
+                                        placeholder="e.g. 1242"
+                                        autocomplete="off"
+                                        maxlength="10"
+                                        aria-describedby="flightHint"
+                                        spellcheck="false"
+                                        inputmode="text"
+                                    >
+                                    <span id="flightHint" class="visually-hidden">Enter your flight number</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="dateSelectFlight" class="input-label">Date</label>
+                                    <div class="select-wrapper">
+                                        <select id="dateSelectFlight" class="flight-input flight-select" aria-describedby="dateHintFlight">
+                                            <option value="2025-01-15">Wednesday, January 15, 2025</option>
+                                            <option value="2025-01-16">Thursday, January 16, 2025</option>
+                                            <option value="2025-01-17">Friday, January 17, 2025</option>
+                                            <option value="2025-01-18">Saturday, January 18, 2025</option>
+                                            <option value="2025-01-19">Sunday, January 19, 2025</option>
+                                            <option value="2026-04-03">Thursday, April 3, 2026</option>
+                                            <option value="2026-04-07">Tuesday, April 7</option>
+                                            <option value="2026-04-08">Wednesday, April 8</option>
+                                            <option value="2026-04-09" selected>Thursday, April 9</option>
+                                            <option value="2026-04-10">Friday, April 10</option>
+                                            <option value="2026-04-11">Saturday, April 11</option>
+                                        </select>
+                                    </div>
+                                    <span id="dateHintFlight" class="visually-hidden">Select travel date</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="panelCities" role="tabpanel" aria-labelledby="tabCities" class="search-panel" hidden>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="fromCityInput" class="input-label">From</label>
+                                    <input
+                                        type="text"
+                                        id="fromCityInput"
+                                        class="flight-input flight-input-plain"
+                                        placeholder="City or airport"
+                                        autocomplete="off"
+                                        aria-describedby="fromHint"
+                                    >
+                                    <span id="fromHint" class="visually-hidden">Departure city or airport</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="toCityInput" class="input-label">To</label>
+                                    <input
+                                        type="text"
+                                        id="toCityInput"
+                                        class="flight-input flight-input-plain"
+                                        placeholder="City or airport"
+                                        autocomplete="off"
+                                        aria-describedby="toHint"
+                                    >
+                                    <span id="toHint" class="visually-hidden">Arrival city or airport</span>
+                                </div>
+                            </div>
+                            <div class="input-group full-width cities-date-row">
+                                <label for="dateSelectCities" class="input-label">Date</label>
+                                <div class="select-wrapper">
+                                        <select id="dateSelectCities" class="flight-input flight-select" aria-describedby="dateHintCities">
+                                        <option value="2025-01-15">Wednesday, January 15, 2025</option>
+                                        <option value="2025-01-16">Thursday, January 16, 2025</option>
+                                        <option value="2025-01-17">Friday, January 17, 2025</option>
+                                        <option value="2025-01-18">Saturday, January 18, 2025</option>
+                                        <option value="2025-01-19">Sunday, January 19, 2025</option>
+                                        <option value="2026-04-03">Thursday, April 3, 2026</option>
+                                        <option value="2026-04-07">Tuesday, April 7</option>
+                                        <option value="2026-04-08">Wednesday, April 8</option>
+                                        <option value="2026-04-09" selected>Thursday, April 9</option>
+                                        <option value="2026-04-10">Friday, April 10</option>
+                                        <option value="2026-04-11">Saturday, April 11</option>
+                                    </select>
+                                </div>
+                                <span id="dateHintCities" class="visually-hidden">Select travel date</span>
+                            </div>
+                        </div>
+                        <button id="searchBtn" class="search-btn" type="button" aria-label="Search for flight status">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
                 <div id="errorMessage" class="error-message" role="alert" hidden>
                     Flight not found. Please check your flight number.
                 </div>
-            </article>
-        </section>
+            </section>
 
-        <!-- Flight Details State: Results Page -->
-        <section id="detailsState" class="details-state" aria-label="Flight Details" hidden>
-            <article class="flight-card">
-                <!-- Header Section with Airports -->
-                <header class="flight-header" role="banner">
-                    <div class="airport-container">
-                        <div class="airport airport-departure">
-                            <div class="airport-code" id="departureAirportCode">ATL</div>
-                            <div class="airport-name" id="departureAirportCity">Georgia, USA</div>
+            <section id="detailsState" class="details-state" aria-label="Flight details" hidden>
+                <article class="bp-card flight-card">
+                    <header class="bp-hero flight-header" role="banner">
+                        <div class="flight-header-world" aria-hidden="true">
+                            <img src="world.png" alt="" class="flight-header-globe-img" width="407" height="258" decoding="async">
                         </div>
-                        <div class="flight-path-header">
-                            <!-- Curved dotted line with SVG -->
-                            <div class="flight-route-curved">
-                                <svg viewBox="0 0 200 40" preserveAspectRatio="none">
-                                    <path d="M 0 35 Q 100 0 200 35" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="5,5"/>
+                        <div class="bp-hero-airports flight-header-route">
+                            <div class="bp-hero-airport">
+                                <div class="bp-hero-code" id="departureAirportCode">ATL</div>
+                                <div class="bp-hero-city" id="departureAirportCity">Georgia, USA</div>
+                            </div>
+                            <div class="bp-hero-path">
+                                <!-- Taller viewBox + large side-view jet on arc peak (t=0.5); stroke/shadow for contrast on globe -->
+                                <svg class="bp-hero-arc" viewBox="0 0 200 54" preserveAspectRatio="xMidYMid meet" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <filter id="bpHeroPlaneGlow" x="-120%" y="-120%" width="340%" height="340%">
+                                            <feDropShadow in="SourceGraphic" dx="0" dy="1.2" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.6"/>
+                                        </filter>
+                                    </defs>
+                                    <path class="bp-hero-arc-line" d="M 7 46 Q 100 2 193 46" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.05" stroke-dasharray="2.8 3.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <!-- On arc toward YYZ (~t=0.8); nose toward top-left per screenshot -->
+                                    <!-- Material icon nose up; +90° → nose right (toward YYZ) -->
+                                    <g class="bp-hero-plane-mark" transform="translate(155.8 31.9) rotate(88) scale(2.9)" filter="url(#bpHeroPlaneGlow)" fill="#ffffff">
+                                        <use href="#bp-icon-plane-flight" x="-12" y="-12" width="24" height="24"/>
+                                    </g>
                                 </svg>
                             </div>
-                            <div class="plane-icon-wrapper">
-                                <div class="plane-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                                    </svg>
+                            <div class="bp-hero-airport bp-hero-airport--end">
+                                <div class="bp-hero-code" id="arrivalAirportCode">YYZ</div>
+                                <div class="bp-hero-city" id="arrivalAirportCity">Ontario, CA</div>
+                            </div>
+                        </div>
+                        <div class="bp-hero-meta flight-header-meta">
+                            <span id="tripSummaryDate">Jan 15, 2025</span>
+                            <span class="bp-meta-sep" aria-hidden="true"></span>
+                            <span id="tripPassengers">1 Passenger</span>
+                            <span class="bp-meta-sep" aria-hidden="true"></span>
+                            <span id="tripClassSummary">Economy</span>
+                        </div>
+                    </header>
+
+                    <div class="bp-sheet">
+                        <div class="bp-rule" role="presentation"></div>
+
+                        <div class="bp-passenger-row" role="region" aria-label="Passenger information">
+                            <div class="bp-avatar" id="passengerAvatar" aria-hidden="true"></div>
+                            <div class="bp-passenger-text">
+                                <div class="bp-passenger-name" id="passengerName">Donna Carver</div>
+                                <div class="bp-passenger-label">Passengers</div>
+                            </div>
+                            <img src="image2.png" alt="" class="bp-airline-logo" width="80" height="32" decoding="async">
+                        </div>
+
+                        <div class="bp-rule" role="presentation"></div>
+
+                        <div class="bp-journey" role="region" aria-label="Flight route">
+                            <div class="bp-journey-inner" id="journeyRoute"></div>
+                        </div>
+
+                        <div class="bp-rule" role="presentation"></div>
+
+                        <div class="bp-times" role="region" aria-label="Flight times">
+                            <div class="bp-time-cell">
+                                <span class="bp-time-icon" aria-hidden="true">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                                </span>
+                                <span class="bp-time-lbl">Date</span>
+                                <span class="bp-time-val" id="departureDate">Jan 15, 2025</span>
+                            </div>
+                            <div class="bp-time-cell">
+                                <span class="bp-time-icon" aria-hidden="true">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+                                </span>
+                                <span class="bp-time-lbl">Time</span>
+                                <span class="bp-time-val" id="departureTime">6:12 PM</span>
+                            </div>
+                            <div class="bp-times-arrow" aria-hidden="true">
+                                <svg width="28" height="16" viewBox="0 0 28 16" fill="none"><path d="M2 8h20m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                            <div class="bp-time-cell">
+                                <span class="bp-time-icon" aria-hidden="true">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                                </span>
+                                <span class="bp-time-lbl">Date</span>
+                                <span class="bp-time-val" id="arrivalDate">Jan 15, 2025</span>
+                            </div>
+                            <div class="bp-time-cell">
+                                <span class="bp-time-icon" aria-hidden="true">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+                                </span>
+                                <span class="bp-time-lbl">Time</span>
+                                <span class="bp-time-val" id="arrivalTime">10:34 PM</span>
+                            </div>
+                        </div>
+
+                        <div class="bp-rule" role="presentation"></div>
+
+                        <footer class="bp-footer-meta" role="contentinfo">
+                            <div class="bp-footer-grid">
+                                <div class="bp-footer-item">
+                                    <div class="bp-footer-lbl">Gate</div>
+                                    <div class="bp-footer-val" id="gateInfo">B2</div>
+                                </div>
+                                <div class="bp-footer-item">
+                                    <div class="bp-footer-lbl">Seat</div>
+                                    <div class="bp-footer-val" id="seatInfo">23A</div>
+                                </div>
+                                <div class="bp-footer-item">
+                                    <div class="bp-footer-lbl">Flight no.</div>
+                                    <div class="bp-footer-val" id="flightNumber">AA 5079</div>
+                                </div>
+                                <div class="bp-footer-item">
+                                    <div class="bp-footer-lbl">Class</div>
+                                    <div class="bp-footer-val" id="classInfo">Economy</div>
                                 </div>
                             </div>
-                            <div class="globe-graphic" aria-hidden="true"></div>
-                        </div>
-                        <div class="airport airport-arrival">
-                            <div class="airport-code" id="arrivalAirportCode">YYZ</div>
-                            <div class="airport-name" id="arrivalAirportCity">Ontario, CA</div>
-                        </div>
-                    </div>
-                </header>
+                        </footer>
 
-                <!-- Passenger Card -->
-                <div class="passenger-card" role="region" aria-label="Passenger Information">
-                    <div class="passenger-info">
-                        <div class="passenger-avatar" aria-hidden="true">👤</div>
-                        <div class="passenger-name" id="passengerName">Donna Carver</div>
+                        <div class="bp-back-wrap">
+                            <button id="backBtn" class="back-btn" type="button" aria-label="Go back to search">
+                                ← Back to Search
+                            </button>
+                        </div>
                     </div>
-                    <div class="airlines-logo" aria-label="American Airlines">
-                        <img src="image.png" alt="American Airlines Logo" class="aa-logo-img">
-                    </div>
+                </article>
+            </section>
+        </div>
+    </main>
+
+    <footer class="aa-site-footer" role="contentinfo">
+        <div class="aa-footer-columns aa-inner">
+            <div class="aa-footer-col">
+                <h2 class="aa-footer-heading">Help</h2>
+                <ul class="aa-footer-links">
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Contact American</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Receipts and refunds</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">FAQs</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Agency reference</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">American Airlines Cargo</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Bag and optional fees</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Tarmac delay contingency plan</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Customer service plan</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Conditions of carriage</button></li>
+                </ul>
+            </div>
+            <div class="aa-footer-col">
+                <h2 class="aa-footer-heading">About American</h2>
+                <ul class="aa-footer-links">
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">About us</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">We're hiring! Join our team</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Investor relations</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Newsroom</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Legal, privacy, copyright</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Cookie preferences</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Sustainability</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Modern Slavery Report</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Browser compatibility</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Web accessibility</button></li>
+                </ul>
+            </div>
+            <div class="aa-footer-col">
+                <h2 class="aa-footer-heading">Extras</h2>
+                <ul class="aa-footer-links">
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Business programs</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Gift cards</button></li>
+                    <li><button type="button" class="aa-footer-text-btn aa-chrome-dummy" tabindex="-1">Trip insurance</button></li>
+                </ul>
+            </div>
+            <div class="aa-footer-col aa-footer-col--promos">
+                <div class="aa-footer-promo">
+                    <button type="button" class="aa-footer-promo-link aa-chrome-dummy" tabindex="-1">Explore Citi® / AAdvantage® credit cards</button>
                 </div>
-
-                <!-- The Flight Path: Three-point connection -->
-                <div class="flight-journey" role="region" aria-label="Flight Route">
-                    <div class="journey-route" id="journeyRoute">
-                        <!-- Dynamically populated -->
-                    </div>
+                <div class="aa-footer-promo">
+                    <button type="button" class="aa-footer-promo-link aa-chrome-dummy" tabindex="-1">Buy or gift miles for new adventures</button>
                 </div>
-
-                <!-- Time Grid: Departure and Arrival -->
-                <div class="time-grid" role="region" aria-label="Flight Times">
-                    <div class="time-box departure">
-                        <div class="time-label">Departure</div>
-                        <div class="time-date" id="departureDate">Jan 15, 2025</div>
-                        <div class="time-time" id="departureTime">6:12 PM</div>
-                    </div>
-                    <div class="time-box arrival">
-                        <div class="time-label">Arrival</div>
-                        <div class="time-date" id="arrivalDate">Jan 15, 2025</div>
-                        <div class="time-time" id="arrivalTime">10:34 PM</div>
-                    </div>
+                <div class="aa-footer-promo">
+                    <button type="button" class="aa-footer-promo-link aa-chrome-dummy" tabindex="-1">Book now and earn up to 1,000 AAdvantage® bonus miles</button>
                 </div>
-
-                <!-- Footer Data Row: Four-column layout -->
-                <footer class="flight-footer" role="contentinfo">
-                    <div class="footer-grid">
-                        <div class="footer-item">
-                            <div class="footer-label">Gate</div>
-                            <div class="footer-value" id="gateInfo">B2</div>
-                        </div>
-                        <div class="footer-item">
-                            <div class="footer-label">Seat</div>
-                            <div class="footer-value" id="seatInfo">23A</div>
-                        </div>
-                        <div class="footer-item">
-                            <div class="footer-label">Flight no.</div>
-                            <div class="footer-value" id="flightNumber">AA 5079</div>
-                        </div>
-                        <div class="footer-item">
-                            <div class="footer-label">Class</div>
-                            <div class="footer-value" id="classInfo">Economy</div>
-                        </div>
-                    </div>
-                </footer>
-
-                <!-- Back Button -->
-                <div class="back-container">
-                    <button id="backBtn" class="back-btn" type="button" aria-label="Go back to search">
-                        ← Back to Search
+            </div>
+        </div>
+        <div class="aa-footer-bottom">
+            <div class="aa-inner aa-footer-bottom-inner">
+                <p class="aa-footer-legal-note">Link opens in new window. Site may not meet accessibility guidelines. AA.com®</p>
+                <div class="aa-footer-social" aria-label="Social media (inactive)">
+                    <button type="button" class="aa-social-link aa-chrome-dummy" tabindex="-1" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </button>
+                    <button type="button" class="aa-social-link aa-chrome-dummy" tabindex="-1" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </button>
+                    <button type="button" class="aa-social-link aa-chrome-dummy" tabindex="-1" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </button>
                 </div>
-            </article>
-        </section>
-    </main>
+            </div>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>

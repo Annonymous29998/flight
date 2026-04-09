@@ -4,6 +4,36 @@
 
 // Flight Database with sample flights
 const flightDatabase = {
+    'AA5079': {
+        flightNumber: 'AA 5079',
+        passenger: {
+            name: 'Donna Carver',
+            avatar: ''
+        },
+        passengerCount: 1,
+        departure: {
+            airport: 'ATL',
+            city: 'Georgia, USA',
+            fullName: 'Georgia, USA',
+            date: 'Jan 15, 2025',
+            time: '6:12 PM',
+            gate: 'B2'
+        },
+        arrival: {
+            airport: 'YYZ',
+            city: 'Ontario, CA',
+            fullName: 'Ontario, CA',
+            date: 'Jan 15, 2025',
+            time: '10:34 PM'
+        },
+        connections: ['CLT'],
+        connectionDetails: {
+            'CLT': 'NC, USA'
+        },
+        seat: '23A',
+        class: 'Economy',
+        airline: 'AA'
+    },
     'AA2156': {
         flightNumber: 'AA 2156',
         passenger: {
@@ -12,7 +42,7 @@ const flightDatabase = {
         },
         departure: {
             airport: 'BOS',
-            city: 'Boston, MA, USA',
+            city: 'Boston, USA',
             fullName: 'Boston',
             date: 'Apr 3, 2026',
             time: '1:18 PM',
@@ -20,7 +50,7 @@ const flightDatabase = {
         },
         arrival: {
             airport: 'CHS',
-            city: 'Charleston, SC, USA',
+            city: 'Charleston, USA',
             fullName: 'Charleston',
             date: 'Apr 3, 2026',
             time: '3:30 PM'
@@ -54,7 +84,7 @@ const flightDatabase = {
         },
         connections: ['ORD'],
         connectionDetails: {
-            'ORD': 'Chicago, IL'
+            'ORD': 'Chicago, USA'
         },
         seat: '15F',
         class: 'Business',
@@ -138,12 +168,29 @@ const flightDatabase = {
         },
         connections: ['DEN'],
         connectionDetails: {
-            'DEN': 'Denver, CO'
+            'DEN': 'Denver, USA'
         },
         seat: '12C',
         class: 'Economy',
         airline: 'AA'
     }
+};
+
+/** Extra lowercase keywords per IATA code so “Toronto”, “Atlanta”, etc. match mock data */
+const AIRPORT_KEYWORDS = {
+    ATL: ['atlanta', 'hartsfield'],
+    CLT: ['charlotte'],
+    YYZ: ['toronto', 'pearson'],
+    BOS: ['boston'],
+    CHS: ['charleston'],
+    LAX: ['los angeles'],
+    JFK: ['new york', 'nyc', 'kennedy'],
+    ORD: ['chicago', 'ohare', "o'hare"],
+    DFW: ['dallas', 'fort worth'],
+    MIA: ['miami'],
+    LHR: ['london', 'heathrow'],
+    SFO: ['san francisco'],
+    DEN: ['denver']
 };
 
 // =====================================================
@@ -152,6 +199,15 @@ const flightDatabase = {
 const lookupState = document.getElementById('lookupState');
 const detailsState = document.getElementById('detailsState');
 const flightInput = document.getElementById('flightInput');
+const lookupForm = document.getElementById('lookupForm');
+const tabFlightNumber = document.getElementById('tabFlightNumber');
+const tabCities = document.getElementById('tabCities');
+const panelFlightNumber = document.getElementById('panelFlightNumber');
+const panelCities = document.getElementById('panelCities');
+const fromCityInput = document.getElementById('fromCityInput');
+const toCityInput = document.getElementById('toCityInput');
+const dateSelectFlight = document.getElementById('dateSelectFlight');
+const dateSelectCities = document.getElementById('dateSelectCities');
 const searchBtn = document.getElementById('searchBtn');
 const backBtn = document.getElementById('backBtn');
 const errorMessage = document.getElementById('errorMessage');
@@ -161,6 +217,10 @@ const departureAirportCode = document.getElementById('departureAirportCode');
 const departureAirportCity = document.getElementById('departureAirportCity');
 const arrivalAirportCode = document.getElementById('arrivalAirportCode');
 const arrivalAirportCity = document.getElementById('arrivalAirportCity');
+const tripSummaryDate = document.getElementById('tripSummaryDate');
+const tripPassengers = document.getElementById('tripPassengers');
+const tripClassSummary = document.getElementById('tripClassSummary');
+const passengerAvatar = document.getElementById('passengerAvatar');
 const passengerName = document.getElementById('passengerName');
 const flightNumberDisplay = document.getElementById('flightNumber');
 const departureDate = document.getElementById('departureDate');
@@ -280,9 +340,38 @@ function showLookupState() {
     setTimeout(() => {
         lookupState.classList.remove('hidden');
         flightInput.value = '';
-        flightInput.focus();
+        if (fromCityInput) fromCityInput.value = '';
+        if (toCityInput) toCityInput.value = '';
+        if (tabCities && tabCities.classList.contains('is-active')) {
+            fromCityInput.focus();
+        } else {
+            flightInput.focus();
+        }
         isTransitioning = false;
     }, 50);
+}
+
+/**
+ * Toggle Flight number vs Cities search (aa.com style)
+ */
+function setSearchMode(mode) {
+    const isFlight = mode === 'flight-number';
+    tabFlightNumber.classList.toggle('is-active', isFlight);
+    tabCities.classList.toggle('is-active', !isFlight);
+    tabFlightNumber.setAttribute('aria-selected', String(isFlight));
+    tabCities.setAttribute('aria-selected', String(!isFlight));
+    panelFlightNumber.hidden = !isFlight;
+    panelCities.hidden = isFlight;
+    if (lookupForm) {
+        lookupForm.classList.toggle('is-flight-mode', isFlight);
+        lookupForm.classList.toggle('is-cities-mode', !isFlight);
+    }
+    hideError();
+    if (isFlight) {
+        flightInput.focus();
+    } else {
+        fromCityInput.focus();
+    }
 }
 
 // =====================================================
@@ -298,7 +387,21 @@ function updateFlightDetails(flightData) {
     departureAirportCity.textContent = flightData.departure.city;
     arrivalAirportCode.textContent = flightData.arrival.airport;
     arrivalAirportCity.textContent = flightData.arrival.city;
-    
+
+    const pCount = flightData.passengerCount != null ? flightData.passengerCount : 1;
+    if (tripSummaryDate) {
+        tripSummaryDate.textContent = flightData.departure.date;
+    }
+    if (tripPassengers) {
+        tripPassengers.textContent = pCount === 1 ? '1 Passenger' : `${pCount} Passengers`;
+    }
+    if (tripClassSummary) {
+        tripClassSummary.textContent = flightData.class;
+    }
+    if (passengerAvatar) {
+        passengerAvatar.textContent = flightData.passenger.avatar || '';
+    }
+
     // Update passenger info
     passengerName.textContent = flightData.passenger.name;
     
@@ -324,57 +427,106 @@ function updateFlightDetails(flightData) {
  * Update the journey route visualization
  */
 function updateJourneyRoute(flightData) {
-    // Clear existing route
     journeyRoute.innerHTML = '';
-    
-    // Build route points array
+
     const routePoints = [
         {
             code: flightData.departure.airport,
-            name: flightData.departure.fullName
+            name: flightData.departure.city || flightData.departure.fullName
         }
     ];
-    
-    // Add connections
-    flightData.connections.forEach(connection => {
+    flightData.connections.forEach((connection) => {
         routePoints.push({
             code: connection,
             name: flightData.connectionDetails[connection] || connection
         });
     });
-    
-    // Add arrival
     routePoints.push({
         code: flightData.arrival.airport,
-        name: flightData.arrival.fullName
+        name: flightData.arrival.city || flightData.arrival.fullName
     });
-    
-    // Build route HTML
+
+    const isDirect = routePoints.length === 2;
+    journeyRoute.className = isDirect
+        ? 'bp-journey-inner bp-journey-inner--direct'
+        : 'bp-journey-inner bp-journey-inner--connecting';
+
+    const planeSvg = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" class="bp-route-plane-use"><use href="#bp-icon-plane-flight"/></svg>`;
+
     routePoints.forEach((point, index) => {
-        // Create route point
         const pointDiv = document.createElement('div');
-        pointDiv.className = 'route-point';
+        pointDiv.className = 'bp-route-point';
         pointDiv.innerHTML = `
-            <div class="point-code">${point.code}</div>
-            <div class="point-name">${point.name}</div>
+            <div class="bp-route-code">${point.code}</div>
+            <div class="bp-route-place">${point.name}</div>
         `;
         journeyRoute.appendChild(pointDiv);
-        
-        // Add connection line and plane (except for last point)
+
         if (index < routePoints.length - 1) {
-            const connectionDiv = document.createElement('div');
-            connectionDiv.className = 'route-connection';
-            connectionDiv.innerHTML = `
-                <div class="route-line"></div>
-                <div class="route-plane" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                    </svg>
-                </div>
-            `;
-            journeyRoute.appendChild(connectionDiv);
+            const conn = document.createElement('div');
+            const firstSegment = index === 0;
+            conn.setAttribute('aria-hidden', 'true');
+            if (firstSegment) {
+                /* Reference: dotted line — plane in circle — dotted line (direct + first leg of connect) */
+                conn.className = 'bp-route-conn bp-route-conn--segment-plane';
+                conn.innerHTML = `
+                    <div class="bp-route-line bp-route-line--flex"></div>
+                    <div class="bp-route-plane-node">${planeSvg}</div>
+                    <div class="bp-route-line bp-route-line--flex"></div>
+                `;
+            } else {
+                conn.className = 'bp-route-conn bp-route-conn--line-only';
+                conn.innerHTML = '<div class="bp-route-line bp-route-line--full"></div>';
+            }
+            journeyRoute.appendChild(conn);
         }
     });
+}
+
+function normalizeLocationQuery(str) {
+    return str.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function legSearchHaystack(leg) {
+    const parts = [leg.airport, leg.city, leg.fullName || ''].filter(Boolean);
+    const extras = AIRPORT_KEYWORDS[leg.airport] || [];
+    return parts.concat(extras).join(' ').toLowerCase();
+}
+
+/** Match user text to a departure or arrival leg (city name, full name, or IATA code). */
+function locationMatches(query, leg) {
+    const raw = query.trim();
+    if (!raw) return false;
+    const q = normalizeLocationQuery(raw);
+    if (/^[a-z]{3}$/i.test(raw) && leg.airport.toLowerCase() === q) {
+        return true;
+    }
+    const hay = legSearchHaystack(leg);
+    if (hay.includes(q)) return true;
+    const words = q.split(' ').filter(Boolean);
+    if (words.length > 1 && words.every((w) => hay.includes(w))) return true;
+    return false;
+}
+
+function parseDepartureDateKey(flightData) {
+    const t = Date.parse(flightData.departure.date.trim());
+    if (Number.isNaN(t)) return null;
+    const d = new Date(t);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function findFlightsByRoute(fromQuery, toQuery, dateKey) {
+    const matches = [];
+    for (const flight of Object.values(flightDatabase)) {
+        if (parseDepartureDateKey(flight) !== dateKey) continue;
+        if (!locationMatches(fromQuery, flight.departure)) continue;
+        if (!locationMatches(toQuery, flight.arrival)) continue;
+        matches.push(flight);
+    }
+    return matches;
 }
 
 // =====================================================
@@ -385,6 +537,30 @@ function updateJourneyRoute(flightData) {
  * Search for a flight in the database
  */
 function searchFlight() {
+    if (tabCities.classList.contains('is-active')) {
+        const fromQ = fromCityInput.value.trim();
+        const toQ = toCityInput.value.trim();
+        if (!fromQ || !toQ) {
+            showError('Please enter both departure and arrival (city or airport).');
+            return;
+        }
+        const dateKey = dateSelectCities.value;
+        setLoadingState(true);
+        setTimeout(() => {
+            const matches = findFlightsByRoute(fromQ, toQ, dateKey);
+            setLoadingState(false);
+            if (matches.length >= 1) {
+                currentFlight = matches[0];
+                updateFlightDetails(currentFlight);
+                showFlightDetails();
+            } else {
+                showError('No flight found for that route and date. Try different wording or check the date.');
+                fromCityInput.focus();
+            }
+        }, 450);
+        return;
+    }
+
     const inputValue = flightInput.value.trim();
     
     if (!inputValue) {
@@ -412,7 +588,7 @@ function searchFlight() {
             updateFlightDetails(flightData);
             showFlightDetails();
         } else {
-            showError('Flight not found. Please check your flight number. Try AA 5079, AA 1234, or AA 5678.');
+            showError('Flight not found. Please check your flight number.');
             flightInput.focus();
         }
     }, 500);
@@ -425,6 +601,9 @@ function searchFlight() {
 // Search button click
 searchBtn.addEventListener('click', searchFlight);
 
+tabFlightNumber.addEventListener('click', () => setSearchMode('flight-number'));
+tabCities.addEventListener('click', () => setSearchMode('cities'));
+
 // Enter key to search
 flightInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
@@ -432,9 +611,23 @@ flightInput.addEventListener('keypress', (e) => {
     }
 });
 
+[fromCityInput, toCityInput].forEach((el) => {
+    if (!el) return;
+    el.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchFlight();
+        }
+    });
+});
+
 // Hide error when user starts typing
 flightInput.addEventListener('input', () => {
     hideError();
+});
+
+[fromCityInput, toCityInput].forEach((el) => {
+    if (!el) return;
+    el.addEventListener('input', () => hideError());
 });
 
 // Back button click
@@ -503,6 +696,15 @@ function handleSwipe() {
 // =====================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (dateSelectFlight && dateSelectCities) {
+        dateSelectFlight.addEventListener('change', () => {
+            dateSelectCities.value = dateSelectFlight.value;
+        });
+        dateSelectCities.addEventListener('change', () => {
+            dateSelectFlight.value = dateSelectCities.value;
+        });
+    }
+
     // Focus on input field
     flightInput.focus();
     
