@@ -120,13 +120,15 @@
                                     <span id="flightHint" class="visually-hidden">Enter your flight number</span>
                                 </div>
                                 <div class="input-group">
-                                    <label for="dateSelectFlight" class="input-label">Date</label>
-                                    <div class="select-wrapper">
-                                        <select id="dateSelectFlight" class="flight-input flight-select" aria-describedby="dateHintFlight" required>
-                                            <option value="" disabled selected>Select date</option>
-                                        </select>
-                                    </div>
-                                    <span id="dateHintFlight" class="visually-hidden">Select travel date</span>
+                                    <label for="travelDateFlight" class="input-label">Date</label>
+                                    <input
+                                        type="date"
+                                        id="travelDateFlight"
+                                        class="flight-input flight-input-date"
+                                        aria-describedby="dateHintFlight"
+                                        required
+                                    >
+                                    <span id="dateHintFlight" class="visually-hidden">Choose travel date from the calendar</span>
                                 </div>
                             </div>
                         </div>
@@ -158,13 +160,15 @@
                                 </div>
                             </div>
                             <div class="input-group full-width cities-date-row">
-                                <label for="dateSelectCities" class="input-label">Date</label>
-                                <div class="select-wrapper">
-                                        <select id="dateSelectCities" class="flight-input flight-select" aria-describedby="dateHintCities" required>
-                                            <option value="" disabled selected>Select date</option>
-                                        </select>
-                                </div>
-                                <span id="dateHintCities" class="visually-hidden">Select travel date</span>
+                                <label for="travelDateCities" class="input-label">Date</label>
+                                <input
+                                    type="date"
+                                    id="travelDateCities"
+                                    class="flight-input flight-input-date"
+                                    aria-describedby="dateHintCities"
+                                    required
+                                >
+                                <span id="dateHintCities" class="visually-hidden">Choose travel date from the calendar</span>
                             </div>
                         </div>
                         <button id="searchBtn" class="search-btn" type="button" aria-label="Search for flight status">

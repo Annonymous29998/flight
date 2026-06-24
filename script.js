@@ -207,8 +207,8 @@ const panelFlightNumber = document.getElementById('panelFlightNumber');
 const panelCities = document.getElementById('panelCities');
 const fromCityInput = document.getElementById('fromCityInput');
 const toCityInput = document.getElementById('toCityInput');
-const dateSelectFlight = document.getElementById('dateSelectFlight');
-const dateSelectCities = document.getElementById('dateSelectCities');
+const travelDateFlight = document.getElementById('travelDateFlight');
+const travelDateCities = document.getElementById('travelDateCities');
 const searchBtn = document.getElementById('searchBtn');
 const backBtn = document.getElementById('backBtn');
 const errorMessage = document.getElementById('errorMessage');
@@ -531,61 +531,41 @@ function findFlightsByRoute(fromQuery, toQuery, dateKey) {
     return matches;
 }
 
-function formatDateSelectLabel(isoKey) {
-    const [y, m, d] = isoKey.split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-    return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-    });
-}
-
-/** Build date dropdown options from flights in the database (user picks; nothing auto-selected). */
-function collectFlightDateOptions() {
-    const byKey = new Map();
-    for (const flight of Object.values(flightDatabase)) {
-        const key = parseDepartureDateKey(flight);
-        if (key && !byKey.has(key)) {
-            byKey.set(key, formatDateSelectLabel(key));
-        }
-    }
-    return [...byKey.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-}
-
-function populateDateSelects() {
-    const dates = collectFlightDateOptions();
-    [dateSelectFlight, dateSelectCities].forEach((select) => {
-        if (!select) return;
-        const current = select.value;
-        select.innerHTML = '';
-        const placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.textContent = 'Select date';
-        placeholder.disabled = true;
-        placeholder.selected = true;
-        select.appendChild(placeholder);
-        dates.forEach(([value, label]) => {
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = label;
-            select.appendChild(option);
-        });
-        if (current && dates.some(([value]) => value === current)) {
-            select.value = current;
-        }
-    });
-}
-
 function lookupFlightByCode(formattedInput, normalizedCode) {
     return flightDatabase[formattedInput] ||
         flightDatabase[`AA${normalizedCode}`] ||
         flightDatabase[normalizedCode];
 }
 
-function getActiveDateSelect() {
-    return tabCities.classList.contains('is-active') ? dateSelectCities : dateSelectFlight;
+function getActiveTravelDateInput() {
+    return tabCities.classList.contains('is-active') ? travelDateCities : travelDateFlight;
+}
+
+function initTravelDatePickers() {
+    const toIsoDateLocal = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
+    const today = new Date();
+    const min = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+    const max = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+    const minValue = toIsoDateLocal(min);
+    const maxValue = toIsoDateLocal(max);
+
+    [travelDateFlight, travelDateCities].forEach((input) => {
+        if (!input) return;
+        input.min = minValue;
+        input.max = maxValue;
+        input.value = '';
+    });
+}
+
+function syncTravelDateInputs(source, target) {
+    if (source && target && source.value) {
+        target.value = source.value;
+    }
 }
 
 // =====================================================
@@ -596,12 +576,21 @@ function getActiveDateSelect() {
  * Search for a flight in the database
  */
 function searchFlight() {
-    const dateSelect = getActiveDateSelect();
-    const dateKey = dateSelect ? dateSelect.value : '';
+    const dateInput = getActiveTravelDateInput();
+    const dateKey = dateInput ? dateInput.value : '';
 
     if (!dateKey) {
-        showError('Please select a travel date.');
-        if (dateSelect) dateSelect.focus();
+        showError('Please choose a travel date from the calendar.');
+        if (dateInput) {
+            dateInput.focus();
+            if (typeof dateInput.showPicker === 'function') {
+                try {
+                    dateInput.showPicker();
+                } catch (_) {
+                    /* showPicker requires a user gesture in some browsers */
+                }
+            }
+        }
         return;
     }
 
@@ -650,7 +639,7 @@ function searchFlight() {
             showFlightDetails();
         } else if (flightData) {
             showError('No flight on the selected date. Please check the date or flight number.');
-            dateSelectFlight.focus();
+            travelDateFlight.focus();
         } else {
             showError('Flight not found. Please check your flight number.');
             flightInput.focus();
@@ -760,15 +749,15 @@ function handleSwipe() {
 // =====================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    populateDateSelects();
+    initTravelDatePickers();
 
-    if (dateSelectFlight && dateSelectCities) {
-        dateSelectFlight.addEventListener('change', () => {
-            dateSelectCities.value = dateSelectFlight.value;
+    if (travelDateFlight && travelDateCities) {
+        travelDateFlight.addEventListener('change', () => {
+            syncTravelDateInputs(travelDateFlight, travelDateCities);
             hideError();
         });
-        dateSelectCities.addEventListener('change', () => {
-            dateSelectFlight.value = dateSelectCities.value;
+        travelDateCities.addEventListener('change', () => {
+            syncTravelDateInputs(travelDateCities, travelDateFlight);
             hideError();
         });
     }

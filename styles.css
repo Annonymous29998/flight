@@ -845,6 +845,22 @@ button.aa-header-logo-link {
     padding-right: 12px;
 }
 
+.flight-input-date {
+    padding: 10px 12px;
+    cursor: pointer;
+    min-height: 40px;
+    color-scheme: light;
+}
+
+.flight-input-date::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.flight-input-date:invalid {
+    color: var(--aa-gray);
+}
+
 .select-wrapper {
     position: relative;
 }
