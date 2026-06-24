@@ -6,30 +6,29 @@
 const flightDatabase = {
     'AA5079': {
         flightNumber: 'AA 5079',
+        tripType: 'One way',
         passenger: {
             name: 'Donna Carver',
             avatar: ''
         },
         passengerCount: 1,
         departure: {
-            airport: 'ATL',
-            city: 'Georgia, USA',
-            fullName: 'Georgia, USA',
-            date: 'Jan 15, 2025',
-            time: '6:12 PM',
-            gate: 'B2'
+            airport: 'KEF',
+            city: 'Keflavík, Iceland',
+            fullName: 'Keflavík International Airport',
+            date: 'Jun 30, 2026',
+            time: '7:45 AM',
+            gate: 'D14'
         },
         arrival: {
-            airport: 'YYZ',
-            city: 'Ontario, CA',
-            fullName: 'Ontario, CA',
-            date: 'Jan 15, 2025',
-            time: '10:34 PM'
+            airport: 'AMS',
+            city: 'Amsterdam, Netherlands',
+            fullName: 'Amsterdam Airport Schiphol',
+            date: 'Jun 30, 2026',
+            time: '11:30 AM'
         },
-        connections: ['CLT'],
-        connectionDetails: {
-            'CLT': 'NC, USA'
-        },
+        connections: [],
+        connectionDetails: {},
         seat: '23A',
         class: 'Economy',
         airline: 'AA'
@@ -178,6 +177,8 @@ const flightDatabase = {
 
 /** Extra lowercase keywords per IATA code so “Toronto”, “Atlanta”, etc. match mock data */
 const AIRPORT_KEYWORDS = {
+    KEF: ['keflavik', 'keflavík', 'reykjavik', 'reykjavík', 'iceland'],
+    AMS: ['amsterdam', 'schiphol', 'netherlands', 'holland'],
     ATL: ['atlanta', 'hartsfield'],
     CLT: ['charlotte'],
     YYZ: ['toronto', 'pearson'],
@@ -384,9 +385,9 @@ function setSearchMode(mode) {
 function updateFlightDetails(flightData) {
     // Update header airports
     departureAirportCode.textContent = flightData.departure.airport;
-    departureAirportCity.textContent = flightData.departure.city;
+    departureAirportCity.textContent = flightData.departure.fullName || flightData.departure.city;
     arrivalAirportCode.textContent = flightData.arrival.airport;
-    arrivalAirportCity.textContent = flightData.arrival.city;
+    arrivalAirportCity.textContent = flightData.arrival.fullName || flightData.arrival.city;
 
     const pCount = flightData.passengerCount != null ? flightData.passengerCount : 1;
     if (tripSummaryDate) {
@@ -396,7 +397,8 @@ function updateFlightDetails(flightData) {
         tripPassengers.textContent = pCount === 1 ? '1 Passenger' : `${pCount} Passengers`;
     }
     if (tripClassSummary) {
-        tripClassSummary.textContent = flightData.class;
+        const typePrefix = flightData.tripType ? `${flightData.tripType} · ` : '';
+        tripClassSummary.textContent = `${typePrefix}${flightData.class}`;
     }
     if (passengerAvatar) {
         passengerAvatar.textContent = flightData.passenger.avatar || '';
@@ -432,7 +434,7 @@ function updateJourneyRoute(flightData) {
     const routePoints = [
         {
             code: flightData.departure.airport,
-            name: flightData.departure.city || flightData.departure.fullName
+            name: flightData.departure.fullName || flightData.departure.city
         }
     ];
     flightData.connections.forEach((connection) => {
@@ -443,7 +445,7 @@ function updateJourneyRoute(flightData) {
     });
     routePoints.push({
         code: flightData.arrival.airport,
-        name: flightData.arrival.city || flightData.arrival.fullName
+        name: flightData.arrival.fullName || flightData.arrival.city
     });
 
     const isDirect = routePoints.length === 2;
@@ -529,6 +531,63 @@ function findFlightsByRoute(fromQuery, toQuery, dateKey) {
     return matches;
 }
 
+function formatDateSelectLabel(isoKey) {
+    const [y, m, d] = isoKey.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+/** Build date dropdown options from flights in the database (user picks; nothing auto-selected). */
+function collectFlightDateOptions() {
+    const byKey = new Map();
+    for (const flight of Object.values(flightDatabase)) {
+        const key = parseDepartureDateKey(flight);
+        if (key && !byKey.has(key)) {
+            byKey.set(key, formatDateSelectLabel(key));
+        }
+    }
+    return [...byKey.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+function populateDateSelects() {
+    const dates = collectFlightDateOptions();
+    [dateSelectFlight, dateSelectCities].forEach((select) => {
+        if (!select) return;
+        const current = select.value;
+        select.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select date';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        select.appendChild(placeholder);
+        dates.forEach(([value, label]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            select.appendChild(option);
+        });
+        if (current && dates.some(([value]) => value === current)) {
+            select.value = current;
+        }
+    });
+}
+
+function lookupFlightByCode(formattedInput, normalizedCode) {
+    return flightDatabase[formattedInput] ||
+        flightDatabase[`AA${normalizedCode}`] ||
+        flightDatabase[normalizedCode];
+}
+
+function getActiveDateSelect() {
+    return tabCities.classList.contains('is-active') ? dateSelectCities : dateSelectFlight;
+}
+
 // =====================================================
 // Flight Search Logic
 // =====================================================
@@ -537,6 +596,15 @@ function findFlightsByRoute(fromQuery, toQuery, dateKey) {
  * Search for a flight in the database
  */
 function searchFlight() {
+    const dateSelect = getActiveDateSelect();
+    const dateKey = dateSelect ? dateSelect.value : '';
+
+    if (!dateKey) {
+        showError('Please select a travel date.');
+        if (dateSelect) dateSelect.focus();
+        return;
+    }
+
     if (tabCities.classList.contains('is-active')) {
         const fromQ = fromCityInput.value.trim();
         const toQ = toCityInput.value.trim();
@@ -544,7 +612,6 @@ function searchFlight() {
             showError('Please enter both departure and arrival (city or airport).');
             return;
         }
-        const dateKey = dateSelectCities.value;
         setLoadingState(true);
         setTimeout(() => {
             const matches = findFlightsByRoute(fromQ, toQ, dateKey);
@@ -571,22 +638,19 @@ function searchFlight() {
     const formattedInput = formatFlightInput(inputValue);
     const normalizedCode = normalizeFlightCode(formattedInput);
     
-    // Set loading state
     setLoadingState(true);
     
-    // Simulate API call delay for better UX
     setTimeout(() => {
-        // Try to find flight with different formats
-        let flightData = flightDatabase[formattedInput] || 
-                        flightDatabase[`AA${normalizedCode}`] ||
-                        flightDatabase[normalizedCode];
-        
+        const flightData = lookupFlightByCode(formattedInput, normalizedCode);
         setLoadingState(false);
         
-        if (flightData) {
+        if (flightData && parseDepartureDateKey(flightData) === dateKey) {
             currentFlight = flightData;
             updateFlightDetails(flightData);
             showFlightDetails();
+        } else if (flightData) {
+            showError('No flight on the selected date. Please check the date or flight number.');
+            dateSelectFlight.focus();
         } else {
             showError('Flight not found. Please check your flight number.');
             flightInput.focus();
@@ -696,12 +760,16 @@ function handleSwipe() {
 // =====================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    populateDateSelects();
+
     if (dateSelectFlight && dateSelectCities) {
         dateSelectFlight.addEventListener('change', () => {
             dateSelectCities.value = dateSelectFlight.value;
+            hideError();
         });
         dateSelectCities.addEventListener('change', () => {
             dateSelectFlight.value = dateSelectCities.value;
+            hideError();
         });
     }
 
@@ -711,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Log available test flights
     console.log('%c✈️ American Airlines Flight Tracker', 'color: #003366; font-size: 16px; font-weight: bold;');
     console.log('%cSample flight numbers for testing:', 'color: #666; font-weight: bold;');
-    console.log('  • AA 5079 - Atlanta → Charlotte → Toronto (Donna Carver)');
+    console.log('  • AA 5079 - Keflavík (KEF) → Amsterdam Schiphol (AMS), one way (Donna Carver)');
     console.log('  • AA 1234 - Los Angeles → Chicago → New York (John Smith)');
     console.log('  • AA 5678 - Dallas → Miami (Emily Johnson)');
     console.log('  • AA 100 - New York → London (Michael Brown)');
