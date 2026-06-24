@@ -8,7 +8,7 @@ const flightDatabase = {
         flightNumber: 'AA 5079',
         tripType: 'One way',
         passenger: {
-            name: 'Donna Carver',
+            name: 'Lee hyun-soo',
             avatar: ''
         },
         passengerCount: 1,
@@ -768,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Log available test flights
     console.log('%c✈️ American Airlines Flight Tracker', 'color: #003366; font-size: 16px; font-weight: bold;');
     console.log('%cSample flight numbers for testing:', 'color: #666; font-weight: bold;');
-    console.log('  • AA 5079 - Keflavík (KEF) → Amsterdam Schiphol (AMS), one way (Donna Carver)');
+    console.log('  • AA 5079 - Keflavík (KEF) → Amsterdam Schiphol (AMS), one way (Lee hyun-soo)');
     console.log('  • AA 1234 - Los Angeles → Chicago → New York (John Smith)');
     console.log('  • AA 5678 - Dallas → Miami (Emily Johnson)');
     console.log('  • AA 100 - New York → London (Michael Brown)');
