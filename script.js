@@ -16,7 +16,7 @@ const flightDatabase = {
             airport: 'KEF',
             city: 'Keflavík, Iceland',
             fullName: 'Keflavík International Airport',
-            date: 'Jun 30, 2026',
+            date: 'Jul 28, 2026',
             time: '7:45 AM',
             gate: 'D14'
         },
@@ -24,7 +24,7 @@ const flightDatabase = {
             airport: 'AMS',
             city: 'Amsterdam, Netherlands',
             fullName: 'Amsterdam Airport Schiphol',
-            date: 'Jun 30, 2026',
+            date: 'Jul 28, 2026',
             time: '11:30 AM'
         },
         connections: [],
